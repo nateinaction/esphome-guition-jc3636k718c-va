@@ -17,81 +17,83 @@
 substitutions:
   name: voice-knob
   friendly_name: "Voice Knob"
-  timezone: "Europe/Warsaw"   # IANA name; core maps common zones to POSIX. Zone not listed? paste a POSIX string (github.com/nayarsystems/posix_tz_db). DST automatic.
+  timezone: "US/Central"   # IANA name; core maps common zones to POSIX. Zone not listed? paste a POSIX string (github.com/nayarsystems/posix_tz_db). DST automatic.
   # For album art: base URL of your HA + the media_player entity
-  ha_base_url: "http://homeassistant.local:8123"
+  ha_base_url: "http://100.123.124.91:8123"   # HA's Tailscale IP; plain HTTP (the ts.net cert is served on 443, not 8123)
   player_entity: media_player.voice_knob_player
   # On-device wake word. Built-in models: alexa, okay_nabu, hey_jarvis, hey_mycroft.
-  wake_word: "alexa"
+  wake_word: "okay_nabu"
   # Home screen (weather + room climate). Change to your entities.
-  weather_entity: weather.home
-  room_temp_entity: sensor.room_temperature
-  room_hum_entity: sensor.room_humidity
-  # Weather screen forecast: an HA helper sensor (see base/screens/weather.ha-helper.yaml)
+  weather_entity: weather.forecast_home
+  # Living-room ambient: the SwitchBot Hub 2, not the AirGradient - the I-9PSL sits in its
+  # own warm enclosure and reads a couple of degrees high.
+  room_temp_entity: sensor.hub_2_2c20_temperature
+  room_hum_entity: sensor.hub_2_2c20_humidity
+  # Weather screen forecast: an HA helper sensor (see base/screens/weather.ha-helper.yaml).
+  # Installed as a template: block at the bottom of HA's configuration.yaml, pointed at
+  # weather.forecast_home and refreshed every 30 min.
   forecast_entity: sensor.va_weekly_forecast
-  # Thermostat screen: the climate.* entity it controls
-  climate_entity: climate.living_room
+  # Thermostat screen: the climate.* entity it controls (the house has exactly one)
+  climate_entity: climate.hallway_thermostat
 
   # Control tiles (swipe up): 4 toggles, each entity + icon + name. Works on any HA domain.
   # tileN_icon = a name from the built-in set: bulb lamp led power plug switch fan ac heater
   # thermometer lock unlock door blinds tv speaker bell wifi home flash. Same icon may repeat.
   # (For an icon outside the set: paste its glyph or a "\U000Fxxxx" code from pictogrammers.com.)
-  tile1_entity: light.living_room
-  tile1_icon: "bulb"
-  tile1_name: "Light"
-  tile2_entity: switch.desk_neon
-  tile2_icon: "flash"
-  tile2_name: "Neon"
-  tile3_entity: light.led_strip
+  # Note: the tile colour follows the entity's state being exactly "on", so stick to
+  # light/switch/fan domains here - a cover.* would toggle fine but always look "off".
+  tile1_entity: light.living_room_uplights
+  tile1_icon: "lamp"
+  tile1_name: "Uplights"
+  tile2_entity: light.mantle_light
+  tile2_icon: "bulb"
+  tile2_name: "Mantle"
+  tile3_entity: light.wiggle_lamp
   tile3_icon: "led"
-  tile3_name: "LED strip"
-  tile4_entity: switch.power_socket
-  tile4_icon: "power"
-  tile4_name: "Socket"
+  tile3_name: "Wiggle"
+  tile4_entity: switch.ir_remote_fan
+  tile4_icon: "fan"
+  tile4_name: "Fan"
 
   # Sensors screen (knob cycles): up to 6 read-only HA entities, shown one at a time, big.
   # Set as many glanceN as you want; leave the rest at their default (a non-existent entity)
   # and they're skipped. Icon name is optional (same set as the tiles); empty = no icon.
-  glance1_entity: sensor.power
-  glance1_name: "Power"
-  glance1_icon: "flash"
-  glance2_entity: sensor.va_glance_unused2
-  glance2_name: ""
+  glance1_entity: sensor.i_9psl_carbon_dioxide
+  glance1_name: "CO2"
+  glance1_icon: ""
+  glance2_entity: sensor.i_9psl_pm2_5
+  glance2_name: "PM2.5"
   glance2_icon: ""
-  glance3_entity: sensor.va_glance_unused3
-  glance3_name: ""
+  glance3_entity: sensor.i_9psl_voc_index
+  glance3_name: "VOC"
   glance3_icon: ""
-  glance4_entity: sensor.va_glance_unused4
-  glance4_name: ""
-  glance4_icon: ""
-  glance5_entity: sensor.va_glance_unused5
-  glance5_name: ""
-  glance5_icon: ""
-  glance6_entity: sensor.va_glance_unused6
-  glance6_name: ""
+  glance4_entity: sensor.hallway_heat_pump_power_usage
+  glance4_name: "HVAC"
+  glance4_icon: "flash"
+  glance5_entity: sensor.khyi_temperature
+  glance5_name: "Outdoor"
+  glance5_icon: "thermometer"
+  glance6_entity: sensor.washy_run_state
+  glance6_name: "Washer"
   glance6_icon: ""
 
-  # External Media Player screen (carousel name "ext"): controls any media player
-  # via HA button entities - HASS.agent, Kodi, a TV, or any device with HA buttons.
-  # Knob = volume. Tap prev/play-pause/next/mute on screen.
-  # Omit these if you are not using the ext-media-player screen.
-  ext_name: "PC"                                    # label shown on the screen header
-  ext_play_entity: button.your_play_pause           # HA button entity for play/pause
-  ext_prev_entity: button.your_previous_track       # HA button entity for previous
-  ext_next_entity: button.your_next_track           # HA button entity for next
-  ext_mute_entity: button.your_mute                 # HA button entity for mute toggle
-  ext_vol_up_entity: button.your_volume_up          # HA button entity for volume up
-  ext_vol_down_entity: button.your_volume_down      # HA button entity for volume down
-  ext_volume_entity: media_player.va_ext_volume_unused  # optional: read-only volume level (amber
-                                                     # arc on the screen); leave unset to skip it
+  # External Media Player screen (carousel name "ext") is not built - see "files:" below.
+  # It drives a media player through six HA *button* entities (HASS.agent, Kodi, a TV
+  # remote), and nothing in this HA exposes those; the Macs only appear as media_player.*
+  # with a "favorite current song" button. Add template buttons later, then re-enable the
+  # screen and fill in ext_play_entity / ext_prev_entity / ext_next_entity /
+  # ext_mute_entity / ext_vol_up_entity / ext_vol_down_entity here.
 
   # Carousel order, left to right. Reorder/remove names freely; screens you did not
   # include in "files:" below are skipped automatically.
-  screen_order: "clock,player,timer,cars,space,snake,knobuss,weather,thermostat,sensors,ext,demo"
+  screen_order: "clock,player,timer,weather,thermostat,sensors"
 
 packages:
   core:
-    url: https://github.com/MichalZaniewicz/esphome-guition-jc3636k718c-va
+    # This fork, not MichalZaniewicz/ upstream: builds track what is committed here, so a
+    # local change to base/ ships once pushed instead of being silently overridden by the
+    # copy fetched from upstream main.
+    url: https://github.com/nateinaction/esphome-guition-jc3636k718c-va
     ref: main
     # Pick your screens here: comment out a base/screens/*.yaml line to drop that screen
     # from the firmware. Only the clock + controls + settings live in base/core.yaml
@@ -100,22 +102,49 @@ packages:
       - base/core.yaml
       - base/screens/player.yaml       # optional: music player (album art + transport)
       - base/screens/timer.yaml        # optional: timer screen in the carousel (voice timers/alarm stay regardless)
-      - base/screens/cool-cars.yaml    # optional: Cool Cars game
-      - base/screens/space-wars.yaml   # optional: Space Wars game
-      - base/screens/snake.yaml        # optional: Snake game (knob steers)
-      - base/screens/knobuss.yaml      # optional: Knobuss - a Gyruss-style tube shooter (knob aims, auto-fire)
+      # Games + demo + extra watchfaces disabled: Tailscale's coord task needs a 12KB
+      # contiguous internal-RAM stack at connect time, and internal RAM was too tight for
+      # it with these enabled (confirmed via heap probe: 28KB free / 20KB largest block
+      # right after connect, with the games in the build; failed below that headroom).
+      # - base/screens/cool-cars.yaml    # optional: Cool Cars game
+      # - base/screens/space-wars.yaml   # optional: Space Wars game
+      # - base/screens/snake.yaml        # optional: Snake game (knob steers)
+      # - base/screens/knobuss.yaml      # optional: Knobuss - a Gyruss-style tube shooter (knob aims, auto-fire)
       - base/screens/weather.yaml      # optional: weather (today + 7-day, knob scrolls days)
       - base/screens/thermostat.yaml   # optional: thermostat (climate.* entity; knob sets target, tap on/off)
       - base/screens/sensors.yaml      # optional: sensors glance (1-6 HA entities, knob cycles)
-      - base/screens/ext-media-player.yaml # optional: external media player (knob = volume, tap prev/play/next/mute)
-      - base/screens/demo.yaml         # optional: commented example screen (TAP ME!) + Widgets settings
+      # - base/screens/ext-media-player.yaml # optional: external media player (knob = volume, tap prev/play/next/mute)
+      # - base/screens/demo.yaml         # optional: commented example screen (TAP ME!) + Widgets settings
       # Watchfaces (optional home-screen looks; Classic is built into core and always available).
       # Comment one out to drop it; pick the active one in Settings > Home > Watchface.
-      - base/watchfaces/neon.yaml      # optional: Neon - big two-tone digits + neon rings
-      - base/watchfaces/minecraft.yaml # optional: Minecraft - blocky scene + pixel clock
-      - base/watchfaces/fortnite.yaml  # optional: Fortnite - battle-royale HUD over a wallpaper
-      - base/watchfaces/demo.yaml      # optional: Demo - minimal, heavily-commented template to copy
+      # - base/watchfaces/neon.yaml      # optional: Neon - big two-tone digits + neon rings
+      # - base/watchfaces/minecraft.yaml # optional: Minecraft - blocky scene + pixel clock
+      # - base/watchfaces/fortnite.yaml  # optional: Fortnite - battle-royale HUD over a wallpaper
+      # - base/watchfaces/demo.yaml      # optional: Demo - minimal, heavily-commented template to copy
     refresh: 0s        # always pull the latest beta (set to e.g. 1d once it stabilizes)
+  # Pinned to the tip of 2026-08-09, i.e. before the three commits that landed on
+  # 2026-08-10 (netcheck_override / DERP region measurement, opt-in ipn_version, and a
+  # changelog entry). After the flash that first picked those up, the device registered
+  # with the coordination server but never established a WireGuard handshake - it answered
+  # nothing on the tailnet IP until `tailscale ping` forced disco. Not proven to be the
+  # cause, but it is the only change touching that path; a moving `main` also made the
+  # build unreproducible, which is worth fixing regardless.
+  #
+  # This is a local file, not a git package, because the upstream wrapper pins its own
+  # external_components to `main` - see the header of tailscale.pinned.yaml.
+  tailscale: !include tailscale.pinned.yaml
+
+tailscale:
+  auth_key: !secret tailscale_auth_key
+  hostname: "esp32-tailscale"
+
+# Per the esphome-tailscale README: once connected, tell ESPHome to advertise this VPN IP
+# (instead of the LAN IP) for API/OTA/dashboard connections, so HA and `esphome` can reach
+# the device over Tailscale. This merges into the `wifi:` block that core.yaml defines
+# (ssid/password/ap) - no need to duplicate or move those here.
+# If the device gets a new Tailscale IP later (re-auth, node reset), update it here.
+wifi:
+  use_address: "100.97.230.52"
 
 # Wi-Fi comes from your local secrets.yaml (the core uses !secret wifi_ssid / wifi_password).
 # Keep a secrets.yaml and partitions.csv next to this file (both must be local paths).

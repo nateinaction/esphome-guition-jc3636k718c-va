@@ -161,6 +161,7 @@ esphome:
               else if (tok == "snake") id = 9;
               else if (tok == "gyruss" || tok == "knobuss") id = 10;
               else if (tok == "ext") id = 11;
+              else if (tok == "remote") id = 12;
               if (id >= 0 && id < 16 && id(g_present)[id]) id(g_order)[id(g_order_n)++] = id;
               if (comma == std::string::npos) break;
               pos = comma + 1;

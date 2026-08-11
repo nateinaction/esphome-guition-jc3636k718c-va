@@ -1,0 +1,229 @@
+# Remote - optional carousel screen (base id 12). D-pad + power for an HA `remote.*` entity
+# (e.g. the Apple TV integration's remote entity). Navigation is D-pad buttons, not swipe -
+# swipe up/down/left/right are reserved globally (core.yaml) for Controls/Settings/carousel.
+# Remove it: drop this file from your config's package "files:" list.
+#
+# Setup steps:
+#   1. Add this substitution to guition-va.yaml:
+#        remote_entity: remote.living_room_tv
+#      (must be a `remote.*` entity - it's the only HA domain with a generic send_command
+#      service for directional nav. A media_player entity has no up/down/left/right/menu/home.)
+#
+#   2. Add this file to the packages files: list in guition-va.yaml:
+#        - base/screens/remote.yaml
+#
+#   3. Add "remote" to screen_order in guition-va.yaml:
+#        screen_order: "clock,remote,weather,thermostat"
+#
+#   4. Add "remote" to the carousel token map in base/core.yaml:
+#        else if (tok == "remote") id = 12;
+#      (add this after the "ext" line)
+
+esphome:
+  on_boot:
+    - priority: 644
+      then:
+        - lambda: 'id(g_present)[12] = true;'   # register in carousel
+
+globals:
+  - id: g_remote_on    # last known power state of ${remote_entity} - drives the power button's target service
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+text_sensor:
+  - platform: homeassistant
+    id: remote_state
+    entity_id: ${remote_entity}
+    on_value:
+      - lambda: 'id(g_remote_on) = (x == "on");'
+      - lvgl.label.update:
+          id: remote_lbl_power
+          text_color: !lambda 'return id(g_remote_on) ? lv_color_hex(0x2FE6CF) : lv_color_hex(0x707A8A);'
+
+interval:
+  # nav: show this screen when it is selected in the carousel
+  - interval: 50ms
+    then:
+      - if:
+          condition: { lambda: 'return id(g_nav_req) && id(g_base)==12;' }
+          then:
+            - lambda: 'id(g_nav_req) = false;'
+            - if: { condition: { lambda: 'return id(g_nav_anim)==0;' }, then: [lvgl.page.show: { id: page_remote, animation: move_left,   time: 250ms }] }
+            - if: { condition: { lambda: 'return id(g_nav_anim)==1;' }, then: [lvgl.page.show: { id: page_remote, animation: move_right,  time: 250ms }] }
+            - if: { condition: { lambda: 'return id(g_nav_anim)==2;' }, then: [lvgl.page.show: { id: page_remote, animation: move_top,    time: 250ms }] }
+            - if: { condition: { lambda: 'return id(g_nav_anim)==3;' }, then: [lvgl.page.show: { id: page_remote, animation: move_bottom, time: 250ms }] }
+
+lvgl:
+  pages:
+    - id: page_remote
+      bg_color: 0x000000
+      widgets:
+        # Outer ring for depth (matches ext-media-player / other screens)
+        - obj:
+            align: CENTER
+            width: 340
+            height: 340
+            radius: 170
+            bg_opa: TRANSP
+            border_width: 2
+            border_color: 0x1A1F2A
+            border_opa: 70%
+            clickable: false
+            scrollable: false
+
+        - label:
+            id: remote_lbl_name
+            align: CENTER
+            y: -138
+            text: "${remote_name}"
+            text_font: font_med
+            text_color: 0x9FC7BE
+
+        # Power (top center, small) - tap toggles based on the last known state (remote_state)
+        - button:
+            id: remote_btn_power
+            align: CENTER
+            y: -96
+            width: 44
+            height: 44
+            radius: 22
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - if:
+                  condition: { lambda: 'return id(g_remote_on);' }
+                  then:
+                    - homeassistant.action:
+                        action: remote.turn_off
+                        data: { entity_id: "${remote_entity}" }
+                  else:
+                    - homeassistant.action:
+                        action: remote.turn_on
+                        data: { entity_id: "${remote_entity}" }
+            widgets:
+              - label: { id: remote_lbl_power, align: CENTER, text: "", text_font: montserrat_22, text_color: 0x707A8A }
+
+        # --- D-pad: up/down/left/right around a center Select button ---
+        - button:
+            id: remote_btn_up
+            align: CENTER
+            x: 0
+            y: -60
+            width: 56
+            height: 56
+            radius: 12
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "up" }
+            widgets:
+              - label: { align: CENTER, text: "", text_font: montserrat_22, text_color: 0xCFEAE4 }
+        - button:
+            id: remote_btn_left
+            align: CENTER
+            x: -60
+            y: 0
+            width: 56
+            height: 56
+            radius: 12
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "left" }
+            widgets:
+              - label: { align: CENTER, text: "", text_font: montserrat_22, text_color: 0xCFEAE4 }
+        - button:
+            id: remote_btn_select
+            align: CENTER
+            x: 0
+            y: 0
+            width: 68
+            height: 68
+            radius: 34
+            bg_color: 0x2FE6CF
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "select" }
+            widgets:
+              - label: { align: CENTER, text: "", text_font: montserrat_22, text_color: 0x06201C }
+        - button:
+            id: remote_btn_right
+            align: CENTER
+            x: 60
+            y: 0
+            width: 56
+            height: 56
+            radius: 12
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "right" }
+            widgets:
+              - label: { align: CENTER, text: "", text_font: montserrat_22, text_color: 0xCFEAE4 }
+        - button:
+            id: remote_btn_down
+            align: CENTER
+            x: 0
+            y: 60
+            width: 56
+            height: 56
+            radius: 12
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "down" }
+            widgets:
+              - label: { align: CENTER, text: "", text_font: montserrat_22, text_color: 0xCFEAE4 }
+
+        # --- Menu (back) / Home, below the D-pad ---
+        - button:
+            id: remote_btn_menu
+            align: CENTER
+            x: -45
+            y: 132
+            width: 84
+            height: 40
+            radius: 20
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "menu" }
+            widgets:
+              - label: { align: CENTER, text: "Back", text_font: font_artist, text_color: 0xCFEAE4 }
+        - button:
+            id: remote_btn_home
+            align: CENTER
+            x: 45
+            y: 132
+            width: 84
+            height: 40
+            radius: 20
+            bg_color: 0x223230
+            bg_opa: COVER
+            border_width: 0
+            on_click:
+              - homeassistant.action:
+                  action: remote.send_command
+                  data: { entity_id: "${remote_entity}", command: "home" }
+            widgets:
+              - label: { align: CENTER, text: "Home", text_font: font_artist, text_color: 0xCFEAE4 }

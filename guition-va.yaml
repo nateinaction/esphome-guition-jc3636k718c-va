@@ -20,7 +20,9 @@ substitutions:
   timezone: "US/Central"   # IANA name; core maps common zones to POSIX. Zone not listed? paste a POSIX string (github.com/nayarsystems/posix_tz_db). DST automatic.
   # For album art: base URL of your HA + the media_player entity
   ha_base_url: "http://100.123.124.91:8123"   # HA's Tailscale IP; plain HTTP (the ts.net cert is served on 443, not 8123)
-  player_entity: media_player.voice_knob_player
+  # Remote screen: D-pad + power for an HA `remote.*` entity (e.g. Apple TV integration)
+  remote_entity: remote.living_room_tv
+  remote_name: "Living Room TV"
   # On-device wake word. Built-in models: alexa, okay_nabu, hey_jarvis, hey_mycroft.
   wake_word: "okay_nabu"
   # Home screen (weather + room climate). Change to your entities.
@@ -90,7 +92,7 @@ substitutions:
 
   # Carousel order, left to right. Reorder/remove names freely; screens you did not
   # include in "files:" below are skipped automatically.
-  screen_order: "clock,player,weather,thermostat"
+  screen_order: "clock,remote,weather,thermostat"
 
 packages:
   core:
@@ -104,7 +106,8 @@ packages:
     # (always on); everything below is optional.
     files:
       - base/core.yaml
-      - base/screens/player.yaml       # optional: music player (album art + transport)
+      - base/screens/remote.yaml       # optional: AppleTV/remote.* D-pad + power
+      # - base/screens/player.yaml       # optional: music player (album art + transport)
       # - base/screens/timer.yaml        # optional: timer screen in the carousel (voice timers/alarm stay regardless)
       # Games + demo + extra watchfaces disabled: Tailscale's coord task needs a 12KB
       # contiguous internal-RAM stack at connect time, and internal RAM was too tight for

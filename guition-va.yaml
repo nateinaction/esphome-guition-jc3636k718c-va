@@ -25,10 +25,9 @@ substitutions:
   wake_word: "okay_nabu"
   # Home screen (weather + room climate). Change to your entities.
   weather_entity: weather.forecast_home
-  # Living-room ambient: the SwitchBot Hub 2, not the AirGradient - the I-9PSL sits in its
-  # own warm enclosure and reads a couple of degrees high.
-  room_temp_entity: sensor.hub_2_2c20_temperature
-  room_hum_entity: sensor.hub_2_2c20_humidity
+  # Living-room ambient: AirGradient
+  room_temp_entity: sensor.i_9psl_temperature
+  room_hum_entity: sensor.i_9psl_humidity
   # Weather screen forecast: an HA helper sensor (see base/screens/weather.ha-helper.yaml).
   # Installed as a template: block at the bottom of HA's configuration.yaml, pointed at
   # weather.forecast_home and refreshed every 30 min.

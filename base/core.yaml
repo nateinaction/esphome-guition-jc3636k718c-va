@@ -27,22 +27,28 @@ substitutions:
   room_temp_entity: sensor.room_temperature
   room_hum_entity: sensor.room_humidity
   climate_entity: climate.home   # thermostat screen target (a climate.* entity)
-  # Control tiles (swipe up): 4 toggleable HA entities, each with an icon + a name. Any domain.
+  # Control tiles (swipe up): 4 tappable HA entities, each with an icon + a name. Any domain.
   # tileN_icon = a name from the built-in set: bulb lamp led power plug switch fan ac heater
   # thermometer lock unlock door blinds tv speaker bell wifi home flash. The same icon may
   # repeat across tiles. (For an icon outside the set, paste its glyph or a \U000Fxxxx code.)
+  # tileN_action = the HA service verb to call on tap: "toggle" (default; lights/switches/fans)
+  # or "turn_on" (scenes, scripts, buttons - domains with no on/off state to toggle).
   tile1_entity: light.desk_lamp
   tile1_icon: "bulb"
   tile1_name: "Lamp"
+  tile1_action: "toggle"
   tile2_entity: switch.neon
   tile2_icon: "flash"
   tile2_name: "Neon"
+  tile2_action: "toggle"
   tile3_entity: light.led_strip
   tile3_icon: "led"
   tile3_name: "LED strip"
+  tile3_action: "toggle"
   tile4_entity: light.desk_lamp
   tile4_icon: "power"
   tile4_name: "Tile 4"
+  tile4_action: "toggle"
   # Sensors screen (knob cycles): up to 6 read-only HA entities, one shown big at a time.
   # Set as many glanceN_entity as you want (+ a name, optional icon name); leave the rest at
   # their default (a non-existent entity) and they're skipped.
@@ -3399,7 +3405,7 @@ lvgl:
             shadow_spread: 1
             shadow_opa: 0%
             on_click:
-              - homeassistant.action: { action: homeassistant.toggle, data: { entity_id: "${tile1_entity}" } }
+              - homeassistant.action: { action: "homeassistant.${tile1_action}", data: { entity_id: "${tile1_entity}" } }
             widgets:
               - label: { id: tile1_ic, align: CENTER, y: -16, text: "", text_font: icons34, text_color: 0x707A8A }
               - label: { id: tile1_lbl, align: CENTER, y: 26, width: 100, long_mode: wrap, text_align: CENTER, text: "${tile1_name}", text_font: font_artist, text_color: 0x9AA3B0, text_letter_space: 2 }
@@ -3420,7 +3426,7 @@ lvgl:
             shadow_spread: 1
             shadow_opa: 0%
             on_click:
-              - homeassistant.action: { action: homeassistant.toggle, data: { entity_id: "${tile2_entity}" } }
+              - homeassistant.action: { action: "homeassistant.${tile2_action}", data: { entity_id: "${tile2_entity}" } }
             widgets:
               - label: { id: tile2_ic, align: CENTER, y: -16, text: "", text_font: icons34, text_color: 0x707A8A }
               - label: { id: tile2_lbl, align: CENTER, y: 26, width: 100, long_mode: wrap, text_align: CENTER, text: "${tile2_name}", text_font: font_artist, text_color: 0x9AA3B0, text_letter_space: 2 }
@@ -3441,7 +3447,7 @@ lvgl:
             shadow_spread: 1
             shadow_opa: 0%
             on_click:
-              - homeassistant.action: { action: homeassistant.toggle, data: { entity_id: "${tile3_entity}" } }
+              - homeassistant.action: { action: "homeassistant.${tile3_action}", data: { entity_id: "${tile3_entity}" } }
             widgets:
               - label: { id: tile3_ic, align: CENTER, y: -16, text: "", text_font: icons34, text_color: 0x707A8A }
               - label: { id: tile3_lbl, align: CENTER, y: 26, width: 100, long_mode: wrap, text_align: CENTER, text: "${tile3_name}", text_font: font_artist, text_color: 0x9AA3B0, text_letter_space: 2 }
@@ -3462,7 +3468,7 @@ lvgl:
             shadow_spread: 1
             shadow_opa: 0%
             on_click:
-              - homeassistant.action: { action: homeassistant.toggle, data: { entity_id: "${tile4_entity}" } }
+              - homeassistant.action: { action: "homeassistant.${tile4_action}", data: { entity_id: "${tile4_entity}" } }
             widgets:
               - label: { id: tile4_ic, align: CENTER, y: -16, text: "", text_font: icons34, text_color: 0x707A8A }
               - label: { id: tile4_lbl, align: CENTER, y: 26, width: 100, long_mode: wrap, text_align: CENTER, text: "${tile4_name}", text_font: font_artist, text_color: 0x9AA3B0, text_letter_space: 2 }

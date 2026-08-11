@@ -35,24 +35,29 @@ substitutions:
   # Thermostat screen: the climate.* entity it controls (the house has exactly one)
   climate_entity: climate.hallway_thermostat
 
-  # Control tiles (swipe up): 4 toggles, each entity + icon + name. Works on any HA domain.
+  # Control tiles (swipe up): 4 taps, each entity + icon + name + action verb. Works on any HA domain.
   # tileN_icon = a name from the built-in set: bulb lamp led power plug switch fan ac heater
   # thermometer lock unlock door blinds tv speaker bell wifi home flash. Same icon may repeat.
   # (For an icon outside the set: paste its glyph or a "\U000Fxxxx" code from pictogrammers.com.)
-  # Note: the tile colour follows the entity's state being exactly "on", so stick to
-  # light/switch/fan domains here - a cover.* would toggle fine but always look "off".
-  tile1_entity: light.living_room_uplights
-  tile1_icon: "lamp"
-  tile1_name: "Uplights"
-  tile2_entity: light.mantle_light
-  tile2_icon: "bulb"
-  tile2_name: "Mantle"
-  tile3_entity: light.wiggle_lamp
-  tile3_icon: "led"
-  tile3_name: "Wiggle"
-  tile4_entity: switch.ir_remote_fan
-  tile4_icon: "fan"
-  tile4_name: "Fan"
+  # Note: the tile colour follows the entity's state being exactly "on", so tileN_action: toggle
+  # only lights up for light/switch/fan domains - scenes have no on/off state, so they stay dark
+  # and just activate on tap (tileN_action: turn_on, since scene has no "toggle" service).
+  tile1_entity: scene.kitchen_bright
+  tile1_icon: "bulb"
+  tile1_name: "Kitchen"
+  tile1_action: "turn_on"
+  tile2_entity: scene.living_room_bright
+  tile2_icon: "lamp"
+  tile2_name: "Living Room"
+  tile2_action: "turn_on"
+  tile3_entity: scene.movie
+  tile3_icon: "tv"
+  tile3_name: "Movie"
+  tile3_action: "turn_on"
+  tile4_entity: scene.chill
+  tile4_icon: "led"
+  tile4_name: "Chill"
+  tile4_action: "turn_on"
 
   # Sensors screen (knob cycles): up to 6 read-only HA entities, shown one at a time, big.
   # Set as many glanceN as you want; leave the rest at their default (a non-existent entity)

@@ -16,6 +16,27 @@ esp32:
       CONFIG_LWIP_CHECK_THREAD_SAFETY: y
       CONFIG_LWIP_TCPIP_CORE_LOCKING: n
 
+      # --- Internal-RAM budget -----------------------------------------------
+      # Symptom this fixes: after a while the device answers small packets over
+      # the tailnet (ICMP, ESPHome API ping) but silently drops anything bigger
+      # than ~1KB, so HA's ListEntities never completes and every entity goes
+      # unavailable. Cause is internal heap exhaustion - measured 3.4KB free -
+      # which starves both the WireGuard encrypt path and mbedtls
+      # ("esp-aes: Failed to allocate memory" on the serial console).
+      #
+      # mbedtls defaults to allocating out of internal RAM, and the Tailscale
+      # control-plane TLS session holds an IN buffer for the life of the
+      # connection. Push all of mbedtls into PSRAM and halve that buffer.
+      CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC: n
+      CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC: y
+      CONFIG_MBEDTLS_ASYMMETRIC_CONTENT_LEN: y
+      CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN: "8192"
+      CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN: "4096"
+      # WiFi static RX buffers are DMA, so they must stay internal - there are
+      # just fewer of them. The block-ack window has to fit inside them.
+      CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM: "8"
+      CONFIG_ESP_WIFI_RX_BA_WIN: "8"
+
 logger:
   baud_rate: 921600
 

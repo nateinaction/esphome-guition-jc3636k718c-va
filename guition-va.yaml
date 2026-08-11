@@ -137,6 +137,11 @@ packages:
 tailscale:
   auth_key: !secret tailscale_auth_key
   hostname: "esp32-tailscale"
+  # The component's opt-out phone-home. On this build it never succeeds anyway
+  # (the HTTPS client cannot get a TLS context on a device this tight), and each
+  # attempt churns the heap we are trying to protect - see the internal-RAM note
+  # in tailscale.pinned.yaml.
+  disable_telemetry: true
 
 # Per the esphome-tailscale README: once connected, tell ESPHome to advertise this VPN IP
 # (instead of the LAN IP) for API/OTA/dashboard connections, so HA and `esphome` can reach
@@ -144,7 +149,7 @@ tailscale:
 # (ssid/password/ap) - no need to duplicate or move those here.
 # If the device gets a new Tailscale IP later (re-auth, node reset), update it here.
 wifi:
-  use_address: "100.97.230.52"
+  use_address: "100.78.186.34"
 
 # Wi-Fi comes from your local secrets.yaml (the core uses !secret wifi_ssid / wifi_password).
 # Keep a secrets.yaml and partitions.csv next to this file (both must be local paths).

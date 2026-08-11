@@ -58,24 +58,24 @@ substitutions:
   # Sensors screen (knob cycles): up to 6 read-only HA entities, shown one at a time, big.
   # Set as many glanceN as you want; leave the rest at their default (a non-existent entity)
   # and they're skipped. Icon name is optional (same set as the tiles); empty = no icon.
-  glance1_entity: sensor.i_9psl_carbon_dioxide
-  glance1_name: "CO2"
-  glance1_icon: ""
-  glance2_entity: sensor.i_9psl_pm2_5
-  glance2_name: "PM2.5"
-  glance2_icon: ""
-  glance3_entity: sensor.i_9psl_voc_index
-  glance3_name: "VOC"
-  glance3_icon: ""
-  glance4_entity: sensor.hallway_heat_pump_power_usage
-  glance4_name: "HVAC"
-  glance4_icon: "flash"
-  glance5_entity: sensor.khyi_temperature
-  glance5_name: "Outdoor"
-  glance5_icon: "thermometer"
-  glance6_entity: sensor.washy_run_state
-  glance6_name: "Washer"
-  glance6_icon: ""
+  # glance1_entity: sensor.i_9psl_carbon_dioxide
+  # glance1_name: "CO2"
+  # glance1_icon: ""
+  # glance2_entity: sensor.i_9psl_pm2_5
+  # glance2_name: "PM2.5"
+  # glance2_icon: ""
+  # glance3_entity: sensor.i_9psl_voc_index
+  # glance3_name: "VOC"
+  # glance3_icon: ""
+  # glance4_entity: sensor.hallway_heat_pump_power_usage
+  # glance4_name: "HVAC"
+  # glance4_icon: "flash"
+  # glance5_entity: sensor.khyi_temperature
+  # glance5_name: "Outdoor"
+  # glance5_icon: "thermometer"
+  # glance6_entity: sensor.washy_run_state
+  # glance6_name: "Washer"
+  # glance6_icon: ""
 
   # External Media Player screen (carousel name "ext") is not built - see "files:" below.
   # It drives a media player through six HA *button* entities (HASS.agent, Kodi, a TV
@@ -86,7 +86,7 @@ substitutions:
 
   # Carousel order, left to right. Reorder/remove names freely; screens you did not
   # include in "files:" below are skipped automatically.
-  screen_order: "clock,player,timer,weather,thermostat,sensors"
+  screen_order: "clock,player,weather,thermostat"
 
 packages:
   core:
@@ -101,7 +101,7 @@ packages:
     files:
       - base/core.yaml
       - base/screens/player.yaml       # optional: music player (album art + transport)
-      - base/screens/timer.yaml        # optional: timer screen in the carousel (voice timers/alarm stay regardless)
+      # - base/screens/timer.yaml        # optional: timer screen in the carousel (voice timers/alarm stay regardless)
       # Games + demo + extra watchfaces disabled: Tailscale's coord task needs a 12KB
       # contiguous internal-RAM stack at connect time, and internal RAM was too tight for
       # it with these enabled (confirmed via heap probe: 28KB free / 20KB largest block
@@ -112,7 +112,7 @@ packages:
       # - base/screens/knobuss.yaml      # optional: Knobuss - a Gyruss-style tube shooter (knob aims, auto-fire)
       - base/screens/weather.yaml      # optional: weather (today + 7-day, knob scrolls days)
       - base/screens/thermostat.yaml   # optional: thermostat (climate.* entity; knob sets target, tap on/off)
-      - base/screens/sensors.yaml      # optional: sensors glance (1-6 HA entities, knob cycles)
+      # - base/screens/sensors.yaml      # optional: sensors glance (1-6 HA entities, knob cycles)
       # - base/screens/ext-media-player.yaml # optional: external media player (knob = volume, tap prev/play/next/mute)
       # - base/screens/demo.yaml         # optional: commented example screen (TAP ME!) + Widgets settings
       # Watchfaces (optional home-screen looks; Classic is built into core and always available).
